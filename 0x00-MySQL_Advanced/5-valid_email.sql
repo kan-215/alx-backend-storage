@@ -1,8 +1,12 @@
--- creates a trigger that resets the attribute valid_email only when the email has been changed.
-CREATE TRIGGER reset_valid_email_attribute
-BEFORE UPDATE ON users
+-- Creates trigger that resets the attribute valid_email
+-- only when the email has been changed
+DELIMITER $
+CREATE TRIGGER is_valid_email
+BEFORE UPDATE on users
 FOR EACH ROW
-IF NEW.email != OLD.email THEN
-	SET NEW.valid_email = 0;
-ENDIF;
-
+BEGIN
+    IF NEW.email != OLD.email THEN
+        SET NEW.valid_email = FALSE;
+    END IF;
+END$
+DELIMITER ;
