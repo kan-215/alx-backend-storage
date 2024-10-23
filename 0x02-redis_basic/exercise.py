@@ -6,19 +6,19 @@ import redis
 from functools import wraps
 
 '''
-    Writing strings to Redis.
+    Redis strings to store strings
 '''
 
 
 def count_calls(method: Callable) -> Callable:
     '''
-        Counts the number of times a method is called.
+        tracks the number of times a method is called.
     '''
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         '''
-            Wrapper function.
+            wdecorator rapper that increments the call count
         '''
         key = method.__qualname__
         self._redis.incr(key)
@@ -48,9 +48,9 @@ def call_history(method: Callable) -> Callable:
 def replay(method: Callable) -> None:
     # sourcery skip: use-fstring-for-concatenation, use-fstring-for-formatting
     """
-    Replays the history of a function
+    displays the history of a function
     Args:
-        method: The function to be decorated
+        method: The function whose history is to be shown
     Returns:
         None
     """
@@ -67,7 +67,7 @@ def replay(method: Callable) -> None:
 
 class Cache:
     '''
-        Cache class.
+        Cache
     '''
     def __init__(self):
         '''
@@ -105,7 +105,7 @@ class Cache:
 
     def get_int(self, key: str) -> int:
         '''
-            Get an int from the cache.
+            Get an integer from the cache.
         '''
         value = self._redis.get(key)
         try:
