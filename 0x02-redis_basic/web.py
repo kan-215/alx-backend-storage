@@ -1,32 +1,30 @@
 #!/usr/bin/env python3
-""" Redis Module """
-
-from functools import wraps
-import redis
+"""implements a web cache"""
 import requests
-from typing import Callable
-
-redis_ = redis.Redis()
+import redis
 
 
-def count_requests(method: Callable) -> Callable:
-    """ Decortator for counting """
-    @wraps(method)
-    def wrapper(url):  # sourcery skip: use-named-expression
-        """ Wrapper for decorator """
-        redis_.incr(f"count:{url}")
-        cached_html = redis_.get(f"cached:{url}")
-        if cached_html:
-            return cached_html.decode('utf-8')
-        html = method(url)
-        redis_.setex(f"cached:{url}", 10, html)
-        return html
-
-    return wrapper
+r = redis.Redis()
 
 
-@count_requests
 def get_page(url: str) -> str:
-    """ Obtain the HTML content of a  URL """
-    req = requests.get(url)
-    return req.text
+    '''implements the cache'''
+    key = "count:{}".format(url)
+    '''
+    increment the count of how many times url has been visited
+    '''
+    r.incr(key)
+    cached_data = r.get(url)
+    '''
+    check if we have data associated with url in cache
+    '''
+    if cached_data is not None:
+        return cached_data.decode('utf-8')
+    '''
+    incase we have no data, query the url and add in cache for 10 seconds
+    '''
+    resp = requests.get(url)
+    info = resp.text
+    r.setex(url, 10, info)
+
+    return info
